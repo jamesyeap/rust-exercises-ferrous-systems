@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-fn rustlatin(sentence: &str) -> Vec<()> {
+fn rustlatin(sentence: &str) -> Vec<String> {
     //                          ^^^^^^^
     // The correct return type needs to be added by you,
     // depending on what the vector's exact type is.
@@ -15,15 +15,18 @@ fn rustlatin(sentence: &str) -> Vec<()> {
     // Iterate over the sentence to split it into words.
     // Push the words into the vector.
     // Correct the return type of the vector
+    for word in sentence.split(" ") {
+        collection_of_words.push(word.into());
+    }
 
     collection_of_words
 }
 
 // Uncomment this:
-// #[test]
-// fn correct_splitting() {
-//     assert_eq!(
-//         vec!["This", "sentence", "needs", "to", "be", "split"],
-//         rustlatin("This sentence needs to be split")
-//     )
-// }
+#[test]
+fn correct_splitting() {
+    assert_eq!(
+        vec!["This", "sentence", "needs", "to", "be", "split"],
+        rustlatin("This sentence needs to be split")
+    )
+}
