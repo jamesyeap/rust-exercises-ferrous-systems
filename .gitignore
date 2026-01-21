@@ -1,0 +1,54 @@
+# =====================
+# Rust / Cargo
+# =====================
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# If this is a binary-only workspace and you want Cargo.lock checked in,
+# remove the line above.
+
+# =====================
+# IDEs / Editors
+# =====================
+# VS Code
+.vscode/
+
+# IntelliJ / CLion / RustRover
+.idea/
+*.iml
+
+# =====================
+# OS files
+# =====================
+.DS_Store
+Thumbs.db
+
+# =====================
+# Logs & temp files
+# =====================
+*.log
+*.tmp
+
+# =====================
+# Env / secrets
+# =====================
+.env
+.env.*
+
+# =====================
+# Coverage / profiling
+# =====================
+coverage/
+*.profraw
+*.profdata
+
+# =====================
+# Rust tooling extras
+# =====================
+# rustfmt
+.rustfmt.toml
+
+# clippy
+.clippy.toml
+
