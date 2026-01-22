@@ -1,4 +1,4 @@
-use crate::ParseError::{MissingOperand, InvalidNumber, EmptyInput};
+use crate::ParseError::{EmptyInput, InvalidNumber, MissingOperand};
 
 // note: enum are "sum" types - represents OR amongst its constituent types
 pub enum Expr {
@@ -52,7 +52,9 @@ pub fn parse(input: &str) -> Result<Expr, ParseError> {
             }
 
             _ => {
-                let number = word.parse::<i64>().map_err(|_| InvalidNumber(word.to_string()))?;
+                let number = word
+                    .parse::<i64>()
+                    .map_err(|_| InvalidNumber(word.to_string()))?;
                 stack.push(Expr::Number(number));
             }
         }
@@ -62,10 +64,7 @@ pub fn parse(input: &str) -> Result<Expr, ParseError> {
 }
 
 #[derive(Debug)]
-pub enum EvalError {
-    // TODO: remove this error type
-    Undefined,
-}
+pub enum EvalError {}
 
 pub fn eval(expr: &Expr) -> Result<i64, EvalError> {
     match expr {
