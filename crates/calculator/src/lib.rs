@@ -1,4 +1,4 @@
-use crate::ParseError::{InvalidExpression, InvalidNumber};
+use crate::ParseError::{MissingOperand, InvalidNumber, EmptyInput};
 
 // note: enum are "sum" types - represents OR amongst its constituent types
 pub enum Expr {
@@ -12,8 +12,9 @@ pub enum Expr {
 
 #[derive(Debug)]
 pub enum ParseError {
-    InvalidExpression,
-    InvalidNumber,
+    MissingOperand,
+    InvalidNumber(String),
+    EmptyInput,
 }
 
 pub fn parse(input: &str) -> Result<Expr, ParseError> {
@@ -22,44 +23,42 @@ pub fn parse(input: &str) -> Result<Expr, ParseError> {
     for word in input.split_ascii_whitespace() {
         match word {
             "+" => {
-                let operand_1 = stack.pop().ok_or(InvalidExpression)?;
-                let operand_2 = stack.pop().ok_or(InvalidExpression)?;
+                let operand_1 = stack.pop().ok_or(MissingOperand)?;
+                let operand_2 = stack.pop().ok_or(MissingOperand)?;
                 stack.push(Expr::Add(Box::new(operand_1), Box::new(operand_2)));
             }
 
             "-" => {
-                let operand_1 = stack.pop().ok_or(InvalidExpression)?;
-                let operand_2 = stack.pop().ok_or(InvalidExpression)?;
+                let operand_1 = stack.pop().ok_or(MissingOperand)?;
+                let operand_2 = stack.pop().ok_or(MissingOperand)?;
                 stack.push(Expr::Subtract(Box::new(operand_1), Box::new(operand_2)));
             }
 
             "*" => {
-                let operand_1 = stack.pop().ok_or(InvalidExpression)?;
-                let operand_2 = stack.pop().ok_or(InvalidExpression)?;
+                let operand_1 = stack.pop().ok_or(MissingOperand)?;
+                let operand_2 = stack.pop().ok_or(MissingOperand)?;
                 stack.push(Expr::Multiply(Box::new(operand_1), Box::new(operand_2)));
             }
 
             "/" => {
-                let operand_1 = stack.pop().ok_or(InvalidExpression)?;
-                let operand_2 = stack.pop().ok_or(InvalidExpression)?;
+                let operand_1 = stack.pop().ok_or(MissingOperand)?;
+                let operand_2 = stack.pop().ok_or(MissingOperand)?;
                 stack.push(Expr::Divide(Box::new(operand_1), Box::new(operand_2)));
             }
 
             "sqr" => {
-                let operand = stack.pop().ok_or(InvalidExpression)?;
+                let operand = stack.pop().ok_or(MissingOperand)?;
                 stack.push(Expr::Square(Box::new(operand)));
             }
 
             _ => {
-                let number = word.parse::<i64>().map_err(|_| InvalidNumber)?;
+                let number = word.parse::<i64>().map_err(|_| InvalidNumber(word.to_string()))?;
                 stack.push(Expr::Number(number));
             }
         }
     }
 
-    assert_eq!(stack.len(), 1);
-
-    stack.pop().ok_or(InvalidExpression)
+    stack.pop().ok_or(EmptyInput)
 }
 
 #[derive(Debug)]
