@@ -12,7 +12,6 @@ pub enum Expr {
 
 #[derive(Debug)]
 pub enum ParseError {
-    NoExpression,
     InvalidExpression,
     InvalidNumber,
 }
@@ -28,7 +27,29 @@ pub fn parse(input: &str) -> Result<Expr, ParseError> {
                 stack.push(Expr::Add(Box::new(operand_1), Box::new(operand_2)));
             }
 
-            // TODO: add more operands
+            "-" => {
+                let operand_1 = stack.pop().ok_or(InvalidExpression)?;
+                let operand_2 = stack.pop().ok_or(InvalidExpression)?;
+                stack.push(Expr::Subtract(Box::new(operand_1), Box::new(operand_2)));
+            }
+
+            "*" => {
+                let operand_1 = stack.pop().ok_or(InvalidExpression)?;
+                let operand_2 = stack.pop().ok_or(InvalidExpression)?;
+                stack.push(Expr::Multiply(Box::new(operand_1), Box::new(operand_2)));
+            }
+
+            "/" => {
+                let operand_1 = stack.pop().ok_or(InvalidExpression)?;
+                let operand_2 = stack.pop().ok_or(InvalidExpression)?;
+                stack.push(Expr::Divide(Box::new(operand_1), Box::new(operand_2)));
+            }
+
+            "sqr" => {
+                let operand = stack.pop().ok_or(InvalidExpression)?;
+                stack.push(Expr::Square(Box::new(operand)));
+            }
+
             _ => {
                 let number = word.parse::<i64>().map_err(|_| InvalidNumber)?;
                 stack.push(Expr::Number(number));
@@ -38,7 +59,7 @@ pub fn parse(input: &str) -> Result<Expr, ParseError> {
 
     assert_eq!(stack.len(), 1);
 
-    stack.pop().ok_or(ParseError::NoExpression)
+    stack.pop().ok_or(InvalidExpression)
 }
 
 #[derive(Debug)]
@@ -55,7 +76,29 @@ pub fn eval(expr: &Expr) -> Result<i64, EvalError> {
             let num_2 = eval(operand_2)?;
             Ok(num_1 + num_2)
         }
-        _ => Err(EvalError::Undefined),
+
+        Expr::Subtract(operand_1, operand_2) => {
+            let num_1 = eval(operand_1)?;
+            let num_2 = eval(operand_2)?;
+            Ok(num_1 - num_2)
+        }
+
+        Expr::Multiply(operand_1, operand_2) => {
+            let num_1 = eval(operand_1)?;
+            let num_2 = eval(operand_2)?;
+            Ok(num_1 * num_2)
+        }
+
+        Expr::Divide(operand_1, operand_2) => {
+            let num_1 = eval(operand_1)?;
+            let num_2 = eval(operand_2)?;
+            Ok(num_1 / num_2)
+        }
+
+        Expr::Square(operand) => {
+            let num = eval(operand)?;
+            Ok(num * num)
+        }
     }
 }
 
@@ -79,11 +122,11 @@ mod tests {
         assert_eq!(value, 3);
     }
 
-    // #[test]
-    // fn smoke_test() {
-    //     let input = "3 sqr 4 sqr + 5 sqr -";
-    //     let expr = parse(input).unwrap();
-    //     let value = eval(&expr).unwrap();
-    //     assert_eq!(value, 0);
-    // }
+    #[test]
+    fn smoke_test() {
+        let input = "3 sqr 4 sqr + 5 sqr -";
+        let expr = parse(input).unwrap();
+        let value = eval(&expr).unwrap();
+        assert_eq!(value, 0);
+    }
 }
