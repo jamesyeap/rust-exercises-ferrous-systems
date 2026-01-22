@@ -1,3 +1,3 @@
 [workspace]
-members = ["crates/fizz-buzz", "crates/rustlatin/*", "crates/urls-match-result"]
+members = ["crates/fizz-buzz", "crates/rustlatin/*", "crates/urls-match-result", "crates/calculator"]
 resolver = "2"
