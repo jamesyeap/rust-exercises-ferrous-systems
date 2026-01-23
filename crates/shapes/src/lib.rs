@@ -1,74 +1,90 @@
 use std::f32::consts::PI;
 
-pub struct Circle {
-    radius: f32,
+pub struct Circle<T>
+where
+    T: num::Num + Copy,
+{
+    radius: T,
 }
 
-pub struct Square {
-    side: i32,
+pub struct Square<T>
+where
+    T: num::Num + Copy,
+{
+    side: T,
 }
 
-impl Circle {
-    fn new(radius: f32) -> Self {
+impl<T: num::Num + From<f32> + Copy> Circle<T> {
+    fn new(radius: T) -> Self {
         Self { radius }
     }
 
-    fn area(&self) -> f32 {
-        PI * self.radius * self.radius
+    fn area(&self) -> T {
+        let my_pi: T = PI.into();
+        my_pi * self.radius * self.radius
     }
 
-    fn scale(&mut self, factor: f32) {
-        self.radius *= factor
+    fn scale(&mut self, factor: T) {
+        self.radius = self.radius * factor
     }
 
-    fn destroy(self) -> f32 {
+    fn destroy(self) -> T {
         self.radius
     }
 }
 
-impl Square {
-    fn new(side: i32) -> Self {
+impl<T: num::Num + Copy> Square<T> {
+    fn new(side: T) -> Self {
         Self { side }
     }
 
-    fn area(&self) -> i32 {
+    fn area(&self) -> T {
         self.side * self.side
     }
 
-    fn scale(&mut self, factor: i32) {
-        self.side *= factor
+    fn scale(&mut self, factor: T) {
+        self.side = self.side * factor
     }
 
-    fn destroy(self) -> i32 {
+    fn destroy(self) -> T {
         self.side
     }
 }
 
-pub trait HasArea {
-    fn area(&self) -> f32;
+pub trait HasArea<T> {
+    fn area(&self) -> T;
 }
 
-impl HasArea for Circle {
-    fn area(&self) -> f32 {
+impl<T> HasArea<T> for Circle<T>
+where
+    T: num::Num + Copy + From<f32>,
+{
+    fn area(&self) -> T {
         self.area()
     }
 }
 
-impl HasArea for Square {
-    fn area(&self) -> f32 {
-        self.area() as f32
+impl<T: num::Num + Copy> HasArea<T> for Square<T> {
+    fn area(&self) -> T {
+        self.area()
     }
 }
 
-enum Shape {
-    Circle(Circle),
-    Square(Square),
+enum Shape<T>
+where
+    T: num::Num + Copy,
+{
+    Circle(Circle<T>),
+    Square(Square<T>),
 }
 
-impl HasArea for Shape {
-    fn area(&self) -> f32 {
+impl<T> HasArea<T> for Shape<T>
+where
+    T: num::Num + Copy + From<f32>,
+{
+    fn area(&self) -> T {
         match self {
-            Self::Circle(circle) => circle.area(),
+            Self::Circle(circle) => HasArea::area(circle),
             Self::Square(square) => HasArea::area(square),
         }
     }
@@ -84,15 +100,15 @@ mod tests {
 
     #[test]
     fn squares() {
-        let test_square = Square::new(5);
-        assert_eq!(test_square.area(), 25);
+        let test_square = Square::new(5f64);
+        assert_eq!(test_square.area(), 25f64);
         let shape = Shape::Square(test_square);
         assert_eq!(shape.area(), 25.0);
     }
 
     #[test]
     fn circle() {
-        let test_circle = Circle::new(4.0);
+        let test_circle = Circle::new(4.0f32);
         assert!((test_circle.area() - 50.265484).abs() < 0.001);
         let shape = Shape::Circle(test_circle);
         assert!((shape.area() - 50.265484).abs() < 0.001);
@@ -107,7 +123,7 @@ mod tests {
 
     #[test]
     fn circle_scale() {
-        let mut test_circle = Circle::new(4.0);
+        let mut test_circle = Circle::new(4.0f32);
         test_circle.scale(2.0);
         assert!((test_circle.area() - 201.06194).abs() < 0.001);
     }
