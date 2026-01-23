@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .filter_map(|line| line.ok())
         .filter_map(|line| line.parse::<i32>().ok())
         .filter(|num| num % 2 != 0)
-        .fold(0, |acc, x| acc + x);
+        .sum::<i32>();
 
     assert_eq!(sum_of_odd_numbers, 31);
     Ok(())
