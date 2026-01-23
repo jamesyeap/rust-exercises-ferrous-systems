@@ -21,26 +21,30 @@ pub enum Error {
 }
 
 pub fn parse(line: &str) -> Result<Command, Error> {
-    let command_str = match line.split_once('\n') {
-        Some(("", "")) => return Err(Error::EmptyMessage),
-        Some((command_str, "")) => command_str, // correct
-        Some((_, _)) => return Err(Error::UnexpectedNewline),
-        None => return Err(Error::IncompleteMessage),
+    let Some(message) = line.strip_suffix('\n') else {
+        return Err(Error::IncompleteMessage); // a message must end with '\n'
     };
 
-    if command_str.starts_with("PUBLISH") {
-        if let Some((_, payload)) = command_str.split_once(' ') {
+    if message.contains('\n') {
+        return Err(Error::UnexpectedNewline); // a message can only contain a single '\n'
+    };
+
+    if message.starts_with("PUBLISH") {
+        if let Some(payload) = message.strip_prefix("PUBLISH ") {
             Ok(Publish(payload.into()))
         } else {
             Err(Error::MissingPayload)
         }
-    } else if command_str.starts_with("RETRIEVE") {
-        if let Some((_, unexpected_payload)) = command_str.split_once(' ') {
-            return Err(Error::UnexpectedPayload);
+    } else if message.starts_with("RETRIEVE") {
+        if let Some(_payload) = message.strip_prefix("RETRIEVE ") {
+            Err(Error::UnexpectedPayload)
+        } else {
+            Ok(Retrieve)
         }
-        Ok(Retrieve)
+    } else if message.is_empty() {
+        Err(Error::EmptyMessage)
     } else {
-        return Err(Error::UnknownCommand);
+        Err(Error::UnknownCommand)
     }
 }
 
