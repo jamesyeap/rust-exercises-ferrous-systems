@@ -1,8 +1,5 @@
+use std::fmt::{Display, Formatter};
 use crate::Command::{Publish, Retrieve};
-
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Command {
@@ -18,6 +15,12 @@ pub enum Error {
     UnknownCommand,
     UnexpectedPayload,
     MissingPayload,
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+       write!(f, "{:?}", self)
+    }
 }
 
 pub fn parse(line: &str) -> Result<Command, Error> {
