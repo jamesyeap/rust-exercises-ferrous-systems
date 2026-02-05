@@ -15,19 +15,19 @@ fn main() -> Result<(), io::Error> {
 }
 
 fn handle_client(stream: TcpStream, log: Arc<Mutex<Vec<usize>>>) -> Result<(), io::Error> {
-    let mut reader = BufReader::new(stream.try_clone()?);
+    let reader = BufReader::new(stream.try_clone()?);
     let mut writer = stream.try_clone()?;
 
-    let mut buffer = String::new();
-    loop {
-        buffer.clear();
-        reader.read_line(&mut buffer);
+    for line in reader.lines() {
+        let line = line?;
 
         // blocks the current thread, until an exclusive lock can be acquired for the log vector
         if let Ok(mut log) = log.lock() {
-           log.push(buffer.len());
+           log.push(line.len());
             println!("{:?}", log);
         }
-        writer.write_all(buffer.as_bytes())?;
+        writer.write_all(line.as_bytes());
     }
+
+    Ok(())
 }
