@@ -25,6 +25,8 @@ fn main() -> Result<(), io::Error> {
         }
     });
 
+    println!("log vec: {:?}", log);
+
     Ok(())
 }
 
